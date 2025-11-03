@@ -2,90 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Scratch & Win</title>
+  <title>Scratch Card - Testbook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      background: #f1f5f9;
       margin: 0;
+      background: #f1f5f9;
       font-family: system-ui, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
     }
+
     .card {
       position: relative;
-      width: 320px;
+      width: 300px;
       height: 200px;
       background: #0a5fff;
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      text-align: center;
-      padding: 30px 20px;
       overflow: hidden;
+      text-align: center;
+      padding: 20px;
+      color: white;
     }
-    .reward {
-      color: #fff;
-      font-size: 18px;
-      font-weight: 700;
-      line-height: 1.4;
+
+    .reward-text {
       z-index: 1;
       position: relative;
-    }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      border-radius: 16px;
-      z-index: 2;
-    }
-    .scratch-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #374151;
-      font-weight: bold;
+      font-weight: 700;
       font-size: 16px;
-      z-index: 3;
-      pointer-events: none;
+      line-height: 1.5;
     }
-    .btn {
-      margin-top: 20px;
+
+    .claim-btn {
+      margin-top: 12px;
       display: inline-block;
       background: #059669;
       color: #fff;
       text-decoration: none;
-      padding: 12px 20px;
+      padding: 10px 20px;
       border-radius: 10px;
       font-weight: 700;
-      font-size: 15px;
+      font-size: 14px;
       box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
-      z-index: 1;
-      position: relative;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      border-radius: 16px;
+    }
+
+    .scratch-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      color: #111827;
+      font-weight: bold;
+      font-size: 16px;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <div class="card" id="scratchCard">
-    <div class="reward" id="rewardText">
+  <div class="card">
+    <div class="reward-text">
       🎉 Congrats!<br />
-      You can access Super Pass Live for 2 Days @ ₹1 Only!
-      <br />
-      <a class="btn" href="https://superpass.testbook.com/?utm_source=Website&utm_medium=Organic&utm_campaign=SEO" target="_blank">Claim Now</a>
+      You can access Super Pass Live for 2 Days @ ₹1 Only!<br />
+      <a class="claim-btn" href="https://superpass.testbook.com/?utm_source=Website&utm_medium=Organic&utm_campaign=SEO" target="_blank">Claim Now</a>
     </div>
-    <div class="scratch-text" id="scratchLabel">Scratch Here</div>
-    <canvas id="scratchCanvas" width="320" height="200"></canvas>
+    <div class="scratch-label" id="scratchLabel">Scratch Here</div>
+    <canvas id="scratchCanvas" width="300" height="200"></canvas>
   </div>
 
   <script>
     const canvas = document.getElementById("scratchCanvas");
     const ctx = canvas.getContext("2d");
-    const scratchLabel = document.getElementById("scratchLabel");
+    const label = document.getElementById("scratchLabel");
 
-    // Initial grey overlay
-    ctx.fillStyle = "#d1d5db";
+    ctx.fillStyle = "#d1d5db"; // grey overlay
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.globalCompositeOperation = "destination-out";
 
@@ -106,33 +107,34 @@
       ctx.fill();
     }
 
-    function start(e) {
+    function startScratch(e) {
       isDrawing = true;
       scratch(e);
     }
 
-    function stop() {
+    function stopScratch() {
       isDrawing = false;
 
-      // Optional auto-clear if >50% scratched
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       let cleared = 0;
       for (let i = 0; i < imageData.data.length; i += 4) {
         if (imageData.data[i + 3] < 128) cleared++;
       }
-      const percent = cleared / (canvas.width * canvas.height) * 100;
-      if (percent > 50) {
+
+      const clearedPercent = cleared / (canvas.width * canvas.height) * 100;
+
+      if (clearedPercent > 50) {
         canvas.style.display = "none";
-        scratchLabel.style.display = "none";
+        label.style.display = "none";
       }
     }
 
-    canvas.addEventListener("mousedown", start);
-    canvas.addEventListener("touchstart", start);
+    canvas.addEventListener("mousedown", startScratch);
+    canvas.addEventListener("touchstart", startScratch);
     canvas.addEventListener("mousemove", scratch);
     canvas.addEventListener("touchmove", scratch);
-    canvas.addEventListener("mouseup", stop);
-    canvas.addEventListener("touchend", stop);
+    canvas.addEventListener("mouseup", stopScratch);
+    canvas.addEventListener("touchend", stopScratch);
   </script>
 </body>
 </html>
