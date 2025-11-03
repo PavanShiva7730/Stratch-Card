@@ -1,36 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Scratch & Win - Testbook</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Scratch & Win</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       background: #f1f5f9;
+      margin: 0;
+      font-family: system-ui, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      margin: 0;
-      font-family: system-ui, sans-serif;
     }
     .card {
       position: relative;
-      width: 300px;
-      height: 180px;
-      background: #0A5FFF;
-      color: white;
+      width: 320px;
+      height: 200px;
+      background: #0a5fff;
       border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       text-align: center;
       padding: 30px 20px;
+      overflow: hidden;
     }
-    .card h2 {
-      font-size: 20px;
-      font-weight: 800;
-      margin: 0;
+    .reward {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.4;
       z-index: 1;
+      position: relative;
     }
     canvas {
       position: absolute;
@@ -39,33 +40,67 @@
       border-radius: 16px;
       z-index: 2;
     }
+    .scratch-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #374151;
+      font-weight: bold;
+      font-size: 16px;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .btn {
+      margin-top: 20px;
+      display: inline-block;
+      background: #059669;
+      color: #fff;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+      z-index: 1;
+      position: relative;
+    }
   </style>
 </head>
 <body>
   <div class="card" id="scratchCard">
-    <h2 id="rewardText">🎉 Congrats! <br> You can access Super Pass Live for 2 Days @ ₹1 Only!</h2>
-    <canvas id="scratchCanvas" width="300" height="180"></canvas>
+    <div class="reward" id="rewardText">
+      🎉 Congrats!<br />
+      You can access Super Pass Live for 2 Days @ ₹1 Only!
+      <br />
+      <a class="btn" href="https://superpass.testbook.com/?utm_source=Website&utm_medium=Organic&utm_campaign=SEO" target="_blank">Claim Now</a>
+    </div>
+    <div class="scratch-text" id="scratchLabel">Scratch Here</div>
+    <canvas id="scratchCanvas" width="320" height="200"></canvas>
   </div>
 
   <script>
     const canvas = document.getElementById("scratchCanvas");
     const ctx = canvas.getContext("2d");
-    const card = document.getElementById("scratchCard");
+    const scratchLabel = document.getElementById("scratchLabel");
 
-    // Fill canvas with grey overlay
-    ctx.fillStyle = "#9ca3af";
+    // Initial grey overlay
+    ctx.fillStyle = "#d1d5db";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     ctx.globalCompositeOperation = "destination-out";
 
     let isDrawing = false;
 
-    function scratch(e) {
-      if (!isDrawing) return;
+    function getXY(e) {
       const rect = canvas.getBoundingClientRect();
       const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
       const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+      return { x, y };
+    }
 
+    function scratch(e) {
+      if (!isDrawing) return;
+      const { x, y } = getXY(e);
       ctx.beginPath();
       ctx.arc(x, y, 20, 0, Math.PI * 2);
       ctx.fill();
@@ -79,14 +114,17 @@
     function stop() {
       isDrawing = false;
 
-      // Optional: Auto-reveal after 50% scratched
+      // Optional auto-clear if >50% scratched
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       let cleared = 0;
       for (let i = 0; i < imageData.data.length; i += 4) {
         if (imageData.data[i + 3] < 128) cleared++;
       }
       const percent = cleared / (canvas.width * canvas.height) * 100;
-      if (percent > 50) canvas.style.display = "none";
+      if (percent > 50) {
+        canvas.style.display = "none";
+        scratchLabel.style.display = "none";
+      }
     }
 
     canvas.addEventListener("mousedown", start);
